@@ -3,9 +3,10 @@ package Main;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-
 import javax.security.auth.login.LoginException;
 import java.io.FileReader;
 
@@ -35,9 +36,16 @@ public class Start {
         // set the activity
         api.getPresence().setActivity(Activity.playing("TO-DO"));
 
+        //add subcommands
+
         // Adding Listeners!
         api.addEventListener(new Commands());
-        api.upsertCommand("addtodo", "Add an item to the discord TO-DO list").queue();
+        api.upsertCommand("addtodo", "Add an item to the discord TO-DO list")
+                .addOption(OptionType.INTEGER,
+                        "howmany",
+                        "Enter a number of how many items to add to the list!",
+                        true)
+                .queue();
 
     }
 }
