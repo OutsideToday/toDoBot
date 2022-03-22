@@ -19,6 +19,7 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
     implementation "com.github.Xirado:JDA:feature~modals"
     implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1'
+    implementation 'com.vdurmont:emoji-java:5.1.1'
 
 }
 
