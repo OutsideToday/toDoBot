@@ -3,6 +3,7 @@ package Main;
 import com.vdurmont.emoji.EmojiParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -76,11 +77,11 @@ public class Commands extends ListenerAdapter {
                 //grabbing the items
                 String itemAdded = event.getValue(randomIDs.get(x)).getAsString();
                 //adding the fields
-                eb.addField("Item", itemAdded, false);
+                eb.addField(":white_square_button: " + emojis.get(x), itemAdded, false);
             }
 
             //setting the channel to print out the embed
-            outputChannel = Start.api.getTextChannelById("955474204281675786");
+            outputChannel = event.getTextChannel();
 
             // output the embed
             List<String> bullshitList = emojis.subList(0, randomIDs.size());
@@ -102,26 +103,85 @@ public class Commands extends ListenerAdapter {
     @Override
     public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
 
+        //grab the message associated with the reaction.
         Message message = event.retrieveMessage().complete();
-        //check to make sure it wasnt the bots own reaction
-        if (event.getReaction().isSelf()) {
-            return;
-        }
 
-        // do this if its a check mark = 1
-        if (event.getReactionEmote().getAsReactionCode().equals(EmojiParser.parseToUnicode(":one:")) && message.getAuthor().isBot()) {
+        //check to make sure it wasn't the bots own reaction
+        if (event.getReaction().isSelf()) return;
 
-            // make the reaction a button
+        if (message.getAuthor().getIdLong() == 955490875008512020L) {
+            //deletes reaction that are on bots embed
             event.getReaction().removeReaction(event.getUser()).queue();
 
-            // copy the embed associated with the reaction
-            EmbedBuilder newBuilder = new EmbedBuilder(message.getEmbeds().get(0));
+            //get the reaction as a string
+            String reactCode = event.getReactionEmote().getAsReactionCode();
 
-            /*
-            newBuilder.getFields()
-            EmbedBuilder editEmbed = new EmbedBuilder(event.retrieveMessage());
-            event.getChannel().editMessageEmbedsById(event.getMessageIdLong()).setEmbeds(doneEmbed.build()).queue();
-            */
+            //make arrays for the titles.
+            String[] checked = {
+                    ":white_check_mark: :one:",
+                    ":white_check_mark: :two:",
+                    ":white_check_mark: :three:",
+                    ":white_check_mark: :four:",
+                    ":white_check_mark: :five:"};
+
+            String[] unchecked = {
+                    ":white_square_button: :one:",
+                    ":white_square_button: :two:",
+                    ":white_square_button: :three:",
+                    ":white_square_button: :four:",
+                    ":white_square_button: :five:"};
+
+            int field_index = -1;
+
+            //store current field to field_index
+            switch (reactCode) {
+                case "\u0031\u20e3":
+                    field_index = 0;
+                    break;
+                case "\u0032\u20e3":
+                    field_index = 1;
+                    break;
+                case "\u0033\u20e3":
+                    field_index = 2;
+                    break;
+                case "\u0034\u20e3":
+                    field_index = 3;
+                    break;
+                case "\u0035\u20e3":
+                    field_index = 4;
+                    break;
+                default:
+                    return;
+            }
+
+
+            // copy the embed associated with the reaction and get all fields
+            EmbedBuilder newBuilder = new EmbedBuilder(message.getEmbeds().get(0));
+            List<MessageEmbed.Field> fields = newBuilder.getFields();
+
+            //change the check to uncheck or visa versa
+            if (fields.get(field_index).getName().equals(unchecked[field_index])) {
+                fields.set(field_index, new MessageEmbed.Field(checked[field_index], fields.get(field_index).getValue(), false));
+            } else {
+                fields.set(field_index, new MessageEmbed.Field(unchecked[field_index], fields.get(field_index).getValue(), false));
+            }
+
+            //send out the edited embed
+            message.editMessageEmbeds(newBuilder.build()).queue();
+
+            //check how many checks there are
+            int count = 0;
+            for (int x = 0; x != fields.size(); x++){
+                if(fields.get(x).getName().equals(checked[x]))
+                    count++;
+            }
+            if (count == fields.size()){
+                newBuilder.setFooter("COMPLETE!");
+                message.editMessageEmbeds(newBuilder.build()).queue();
+                message.clearReactions().queue();
+            }
+
+
         }
     }
 }
