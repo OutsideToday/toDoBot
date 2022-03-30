@@ -72,10 +72,11 @@ public class Commands extends ListenerAdapter {
             EmbedBuilder eb = new EmbedBuilder();
             eb.setColor(Color.GREEN);
             eb.setAuthor(event.getUser().getName());
+            System.out.println(randomIDs);
             //load items into embed
             for (int x = 0; x != randomIDs.size(); x++) {
                 //grabbing the items
-                String itemAdded = event.getValue(randomIDs.get(x)).getAsString();
+                String itemAdded = Objects.requireNonNull(event.getValue(randomIDs.get(x))).getAsString();
                 //adding the fields
                 eb.addField(":white_square_button: " + emojis.get(x), itemAdded, false);
             }
